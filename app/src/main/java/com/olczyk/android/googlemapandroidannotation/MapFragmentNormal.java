@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -14,56 +15,81 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.ViewById;
+
+import java.util.Objects;
 import java.util.Random;
 
+@EFragment(R.layout.fragment_map)
 public class MapFragmentNormal extends Fragment {
 
-    MapView mMapView;
-    private GoogleMap googleMap;
+    @ViewById
+    MapView map_view;
+
+    GoogleMap gogleMap;
+    View rootView;
 
     LatLng first;
     LatLng second;
     LatLng third;
 
-
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_map, container, false);
+    public View onCreateView( LayoutInflater inflater,  ViewGroup container, Bundle savedInstanceState) {
+        rootView = inflater.inflate(R.layout.fragment_map,container,false);
 
-        mMapView = rootView.findViewById(R.id.map_view);
-        mMapView.onCreate(savedInstanceState);
+        map_view = rootView.findViewById(R.id.map_view);
 
-        first = new LatLng(randomLat(),randomLng());
-        second = new LatLng(randomLat(),randomLng());
-        third = new LatLng(randomLat(),randomLng());
+        map_view.onCreate(savedInstanceState);
+        map_view.onResume();
 
-        mMapView.onResume(); // needed to get the map to display immediately
+        first = new LatLng(42.390205,2.154007);
+        second = new LatLng(53.237049,21.017532);
+        third = new LatLng(52.4546600,30.5238000);
 
         try {
-            MapsInitializer.initialize(getActivity().getApplicationContext());
+            MapsInitializer.initialize(Objects.requireNonNull(getActivity()).getApplicationContext());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        mMapView.getMapAsync(new OnMapReadyCallback() {
+        map_view.getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onMapReady(GoogleMap mMap) {
-                googleMap = mMap;
-                LatLng myPoint = first;
+            public void onMapReady(GoogleMap googleMap) {
+                gogleMap = googleMap;
+                LatLngBounds.Builder cameraBoundries = new LatLngBounds.Builder();
 
-                MarkerOptions marker = new MarkerOptions().position(myPoint).title("first");
-
-                marker.icon(BitmapDescriptorFactory
+                MarkerOptions marker1 = new MarkerOptions().position(first).title("first");
+                marker1.icon(BitmapDescriptorFactory
                         .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+                cameraBoundries.include(first);
 
-                googleMap.addMarker(marker);
-                CameraPosition cameraPosition = new CameraPosition.Builder()
-                        .target(myPoint).zoom(12).build();
-                googleMap.animateCamera(CameraUpdateFactory
-                        .newCameraPosition(cameraPosition));
+                googleMap.addMarker(marker1);
+
+                MarkerOptions marker2 = new MarkerOptions().position(second).title("second");
+                marker2.icon(BitmapDescriptorFactory
+                        .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+                cameraBoundries.include(second);
+
+                googleMap.addMarker(marker2);
+
+                MarkerOptions marker3 = new MarkerOptions().position(third).title("third");
+                marker3.icon(BitmapDescriptorFactory
+                        .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+                googleMap.addMarker(marker3);
+                cameraBoundries.include(third);
+
+                LatLngBounds boundiresBuild = cameraBoundries.build();
+
+                int width = getResources().getDisplayMetrics().widthPixels;
+                int height = getResources().getDisplayMetrics().heightPixels;
+                int padding = (int) (width * 0.10);
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(boundiresBuild, width,height,padding);
+
+                googleMap.animateCamera(cameraUpdate);
             }
         });
         return rootView;
@@ -81,28 +107,29 @@ public class MapFragmentNormal extends Fragment {
         return result;
     }
 
+
     @Override
     public void onResume() {
         super.onResume();
-        mMapView.onResume();
+        map_view.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mMapView.onPause();
+        map_view.onPause();
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mMapView.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
+        map_view.onDestroy();
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        mMapView.onLowMemory();
+        map_view.onLowMemory();
     }
-
 }
+

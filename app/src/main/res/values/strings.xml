@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">GoogleMapAndroidAnnotation</string>
+    <string name="markers">Markers</string>
+    <string name="line">linia</string>
 </resources>
