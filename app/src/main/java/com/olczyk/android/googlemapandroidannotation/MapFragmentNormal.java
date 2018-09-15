@@ -1,5 +1,6 @@
 package com.olczyk.android.googlemapandroidannotation;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -17,10 +18,13 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
@@ -46,9 +50,15 @@ public class MapFragmentNormal extends Fragment {
         map_view.onCreate(savedInstanceState);
         map_view.onResume();
 
+        final List<LatLng> latLngs = new ArrayList<>();
+
         first = new LatLng(42.390205,2.154007);
         second = new LatLng(53.237049,21.017532);
         third = new LatLng(52.4546600,30.5238000);
+
+        latLngs.add(first);
+        latLngs.add(second);
+        latLngs.add(third);
 
         try {
             MapsInitializer.initialize(Objects.requireNonNull(getActivity()).getApplicationContext());
@@ -81,6 +91,11 @@ public class MapFragmentNormal extends Fragment {
                         .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
                 googleMap.addMarker(marker3);
                 cameraBoundries.include(third);
+
+                PolylineOptions polylineOptions = new PolylineOptions()
+                        .addAll(latLngs);
+                polylineOptions.width(5).color(Color.RED);
+                gogleMap.addPolyline(polylineOptions);
 
                 LatLngBounds boundiresBuild = cameraBoundries.build();
 
